@@ -1,30 +1,37 @@
 services:
-  nginx-service:
-    image: lmscmc_nginx
+  php-fpm:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - redis
+    networks:
+      - lms-network
+
+  nginx:
+    image: nginx:latest
     ports:
       - "8080:80"
     networks:
       - lms-network
-    environment:
-      - MOODLE_DB_TYPE=pgsql
-      - MOODLE_DB_HOST=db
-      - MOODLE_DB_USER=moodle
-      - MOODLE_DB_PASSWORD=moodle
-      - MOODLE_DB_NAME=moodle
-      - MOODLE_URL=http://localhost:8080
-  db:
-    image: postgres:16-alpine
+    depends_on:
+      - php-fpm
+
+  redis:
+    volumes:
+      - redis-data:/data
+    image: redis:alpine
+    ports:
+      - "6379:6379"
     networks:
       - lms-network
-    environment:
-      POSTGRES_USER: moodle
-      POSTGRES_PASSWORD: moodle
-      POSTGRES_DB: moodle
+
 volumes:
-  postgres_data:
+  redis-data:
     driver: local
   moodledata:
     driver: local
+
 networks:
   lms-network:
     driver: bridge
