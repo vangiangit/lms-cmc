@@ -1,4 +1,4 @@
-FROM php:8.2-apache
+FROM php:8.2-fpm
 
 RUN apt-get update && apt-get install -y \
     git \
@@ -17,6 +17,7 @@ RUN apt-get update && apt-get install -y \
     libxslt1.1 \
     libxslt-dev \
     libxml2-dev \
+    nginx \
     && docker-php-ext-install -j$(nproc) \
     zip \
     gd \
@@ -69,20 +70,9 @@ COPY custom_lang/ /var/www/moodledata/lang/
 RUN chown -R www-data:www-data /var/www/moodledata \
     && chmod 755 /var/www/moodledata
 
-RUN echo '<VirtualHost *:80>\n\
-    DocumentRoot /var/www/html/public\n\
-    LimitRequestBody 5399851000\n\
-    TimeOut 300\n\
-    SetEnv AWS_ACCESS_KEY_ID minioadmin\n\
-    SetEnv AWS_SECRET_ACCESS_KEY minioadmin\n\
-    LogFormat "%h %l %u %t \"%r\" %>s %b %D \"%{Referer}i\" \"%{User-Agent}i\"" combined\n\
-    LogFormat "%v:%p %h %l %u %t \"%r\" %>s %O %D \"%{Referer}i\" \"%{User-Agent}i\"" vhost_combined\n\
-    <Directory /var/www/html/public>\n\
-        Options Indexes FollowSymLinks\n\
-        AllowOverride None\n\
-        Require all granted\n\
-        FallbackResource /r.php\n\
-    </Directory>\n\
-</VirtualHost>' > /etc/apache2/sites-available/000-default.conf \ && a2enmod rewrite
+COPY config/nginx.conf /etc/nginx/sites-available/default
 
-CMD service cron start && apache2-foreground && service redis-server restart
+COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+CMD ["/usr/local/bin/entrypoint.sh"]

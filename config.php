@@ -17,7 +17,7 @@ $CFG->dboptions = array (
   'dbsocket' => '',
 );
 
-$CFG->wwwroot   = 'http://localhost:9080';
+$CFG->wwwroot   = 'http://localhost:8080';
 $CFG->dataroot  = '/var/www/moodledata';
 $CFG->admin     = 'admin';
 
@@ -26,7 +26,7 @@ $CFG->directorypermissions = 0777;
 $CFG->phpunit_dataroot = '/var/www/moodledata/phpunit';
 $CFG->phpunit_prefix = 'phpu_';
 
-$CFG->behat_wwwroot   = 'http://localhost:9081';
+$CFG->behat_wwwroot   = 'http://localhost:8081';
 $CFG->behat_dataroot  = '/var/www/behatdata';
 $CFG->behat_prefix    = 'bht_';
 
