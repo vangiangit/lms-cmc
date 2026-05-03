@@ -1,17 +1,24 @@
+version: '3.8'
+networks:
+  lms-network:
+    driver: bridge
 services:
-  nginx-service:
-    image: lmscmc_nginx
+  web:
+    image: lmscmc_nginx_alias:latest
     ports:
-      - "8080:80"
+      - "80:80"
     networks:
       - lms-network
+    volumes:
+      - ./moodle_core:/var/www/html
     environment:
       - MOODLE_DB_TYPE=pgsql
       - MOODLE_DB_HOST=db
       - MOODLE_DB_USER=moodle
       - MOODLE_DB_PASSWORD=moodle
       - MOODLE_DB_NAME=moodle
-      - MOODLE_URL=http://localhost:8080
+      - MOODLE_WWWROOT=http://localhost
+
   db:
     image: postgres:16-alpine
     networks:
@@ -20,11 +27,15 @@ services:
       POSTGRES_USER: moodle
       POSTGRES_PASSWORD: moodle
       POSTGRES_DB: moodle
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - lms-network
+
 volumes:
-  postgres_data:
-    driver: local
   moodledata:
     driver: local
-networks:
-  lms-network:
-    driver: bridge

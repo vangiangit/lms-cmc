@@ -30,3 +30,9 @@ $CFG->dbtype    = getenv('MOODLE_DB_TYPE') ?: 'pgsql';
 
 $CFG->wwwroot   = getenv('MOODLE_WWWROOT') ?: 'http://localhost';
 ```
+
+pm = dynamic
+pm.max_children = 50
+pm.start_servers = 5
+pm.min_spare_servers = 5
+pm.max_spare_servers = 10

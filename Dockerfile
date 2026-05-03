@@ -38,14 +38,19 @@ RUN echo "max_input_vars = 5000" >> /usr/local/etc/php/conf.d/moodle-vars.ini \
     && echo "post_max_size = 5150M" >> /usr/local/etc/php/conf.d/moodle-vars.ini \
     && echo "upload_max_filesize = 5G" >> /usr/local/etc/php/conf.d/moodle-vars.ini
 
+RUN echo "zend.exception_ignore_args = On" >> /usr/local/etc/php/conf.d/security.ini
+
+# Install Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
+    && chmod +x /usr/local/bin/composer
+
 RUN echo "* * * * * /usr/local/bin/php /var/www/html/admin/cli/cron.php >> /var/log/cron.log 2>&1" > /etc/cron.d/moodle-cron
 
 RUN chmod 0644 /etc/cron.d/moodle-cron && crontab /etc/cron.d/moodle-cron
 
 # Redis
-RUN echo "extension=redis.so\n\
-    session.save_handler=redis\n\
-    session.save_path=\"tcp://localhost:6379\"\n" > /usr/local/etc/php/conf.d/redis.ini
+RUN echo "session.save_handler=redis\n\
+    session.save_path=\"tcp://redis:6379\"\n" > /usr/local/etc/php/conf.d/redis.ini
 
 #OPCache
 RUN echo "opcache.enable=1\n\
@@ -59,9 +64,9 @@ WORKDIR /var/www/html
 
 RUN pecl install redis && docker-php-ext-enable redis
 
-COPY moodle_core/ .
-COPY moodle_plugins/ .
-COPY config.php .
+# COPY moodle_core/ .
+# COPY moodle_plugins/ .
+# COPY config.php .
 
 RUN chown -R www-data:www-data /var/www/html
 
